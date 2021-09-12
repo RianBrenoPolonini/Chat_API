@@ -2,6 +2,7 @@ const express = require('express');
 const { v4: uuid4 } = require('uuid');
 
 const app = express();
+const port = process.env.PORT || 3333;
 
 app.use(express.json());
 
@@ -123,7 +124,7 @@ app.get("/mensagens", (req, resp) => {
     return resp.json(mensagens);
 });
 
-app.listen(3333, (erro) => {
+app.listen(port, (erro) => {
     if (erro){
         console.log("Deu ruim!");
     }else{
