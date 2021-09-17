@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 app.use(express.json());
+const port = process.env.PORT || 3333;
 
 const users = [{
     nick: "Admin",
@@ -145,7 +146,7 @@ app.get('/user/users', (req, res) => {
     return res.json(users);
 });
 
-app.listen(3333, (erro) => {
+app.listen(port, (erro) => {
     if (erro) {
         console.log('Deu ruim!')
     } else {
