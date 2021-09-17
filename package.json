@@ -1,7 +1,7 @@
 {
   "name": "ChatAPI",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "index.js",
   "license": "MIT",
   "scripts": {
     "dev": "nodemon ./src/app.js",
