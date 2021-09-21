@@ -26,18 +26,18 @@ function checkIfUserAuth(req, res, next) {
     const { token } = req.headers;
 
     if (!token) {
-        return res.status(401);
+        return res.status(401).json({ "error": "Token não informado"});
     }
 
     jwt.verify(token, key, (error, decod) => {
         if (error) {
-            return res.status(401);
+            return res.status(401).json({ "error": "Token invalido"});
         }
 
         const user = users.find((user) => user.id === decod.id);
 
         if (!user) {
-            return res.status(403);
+            return res.status(403).json({ "error": "Token não existente"});;
         }
 
         req.user = user;
@@ -54,7 +54,7 @@ app.post('/user/create', (req, res) => {
     );
 
     if (existe) {
-        return res.status(400);
+        return res.status(400).json({ "error": "E-mail ou Nick já existem"});
     }
 
     const hash = crypt.hashSync(password, 10);
@@ -67,7 +67,7 @@ app.post('/user/create', (req, res) => {
         id: uuidv4()
     });
 
-    return res.status(201);
+    return res.status_code(201).json({ "mensagem": "Usuário cadastrato com sucesso"});
 
 });
 
@@ -83,14 +83,14 @@ app.post('/user/login', (req, res) => {
     }
     
     if (!user) {
-        return res.status(400)
+        return res.status(400).json({ "error": "Usuário não existe"});
     }
 
     if (crypt.compareSync(password, user.password)) {
        return res.status(200).json({ token: gerarToken(user.id) });
     }
 
-    return res.status(400)
+    return res.status(400).json({ "error": "Senha incorreta"});
 });
 
 app.put('/user/account', checkIfUserAuth, (req, res) => {
@@ -98,7 +98,7 @@ app.put('/user/account', checkIfUserAuth, (req, res) => {
     const { user } = req;
 
     if (!nick && !email && !password) {
-        return res.status(400)
+        return res.status(400).json({ "error": "Usuário não passou nasa para alterar"});
     }
 
     if (nick) {
@@ -115,7 +115,7 @@ app.put('/user/account', checkIfUserAuth, (req, res) => {
         user.password = hash;
     }
 
-    return res.status(200)
+    return res.status(200).json({ "mensagem": "Alteração feita com sucesso"});
 
 });
 
