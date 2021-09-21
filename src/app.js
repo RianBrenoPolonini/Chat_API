@@ -67,7 +67,7 @@ app.post('/user/create', (req, res) => {
         id: uuidv4()
     });
 
-    return res.status_code(201).json({ "mensagem": "Usuário cadastrato com sucesso"});
+    return res.status(201).json({ "mensagem": "Usuário cadastrato com sucesso"});
 
 });
 
