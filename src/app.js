@@ -49,6 +49,10 @@ function checkIfUserAuth(req, res, next) {
 app.post('/user/create', (req, res) => {
     const { email, password, nick } = req.body;
 
+    if (!email && !password && !nick){
+        return res.status(400).json({ error: "Preencha todas as informações"});
+    }
+
     const existe = users.some(
         (users) => users.email === email || users.nick === nick
     );
@@ -72,12 +76,11 @@ app.post('/user/create', (req, res) => {
 });
 
 app.post('/user/login', (req, res) => {
-    const { email, password, nick } = req.body;
+    const { email, password } = req.body;
 
-
-    const user = users.find((user) => user.email === email);
-  
+    const user = users.find((user) => user.email === email || user.nick === email);
     
+
     if (!user) {
         return res.status(400).json({ error: "Usuário não existe"});
     }
