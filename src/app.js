@@ -26,18 +26,18 @@ function checkIfUserAuth(req, res, next) {
     const { token } = req.headers;
 
     if (!token) {
-        return res.send({ error: "Token não encontrado!" });
+        return res.status(401);
     }
 
     jwt.verify(token, key, (error, decod) => {
         if (error) {
-            return res.send({ error: "Token invalido!" });
+            return res.status(401);
         }
 
         const user = users.find((user) => user.id === decod.id);
 
         if (!user) {
-            return res.status(400).json({ error: "Token invalido!" })
+            return res.status(403);
         }
 
         req.user = user;
@@ -54,7 +54,7 @@ app.post('/user/create', (req, res) => {
     );
 
     if (existe) {
-        return res.status(400).json({ error: "Usuário já existe!" });
+        return res.status(400);
     }
 
     const hash = crypt.hashSync(password, 10);
@@ -67,33 +67,39 @@ app.post('/user/create', (req, res) => {
         id: uuidv4()
     });
 
-    return res.status(201).send("Usuário cadastado com sucesso");
+    return res.status(201);
 
 });
 
 app.post('/user/login', (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, nick } = req.body;
 
-    const user = users.find((user) => user.email === email);
-
-    if (!user) {
-        return res.status(400).json({ error: "E-mail invalido!" });
+    if(email){
+        const user = users.find((user) => user.email === email);
     }
 
-    if (user.isAdmin && user.password === password) {
-        res.status(201).json({ token: gerarToken(user.id), user });
+    if(nick){
+        const user = users.find((user) => user.nick === nick);
+    }
+    
+    if (!user) {
+        return res.status(400)
     }
 
     if (crypt.compareSync(password, user.password)) {
-        res.status(201).json({ token: gerarToken(user.id), user });
+       return res.status(200).json({ token: gerarToken(user.id) });
     }
 
-    return res.status(400).json({ error: "Senha invalida!" })
+    return res.status(400)
 });
 
 app.put('/user/account', checkIfUserAuth, (req, res) => {
     const { nick, email, password } = req.body;
     const { user } = req;
+
+    if (!nick && !email && !password) {
+        return res.status(400)
+    }
 
     if (nick) {
         user.nick = nick;
@@ -109,7 +115,7 @@ app.put('/user/account', checkIfUserAuth, (req, res) => {
         user.password = hash;
     }
 
-    return res.send('Alteração feita com sucesso')
+    return res.status(200)
 
 });
 
@@ -122,13 +128,13 @@ app.delete('/user/account', checkIfUserAuth, (req, res) => {
 
         users.splice(users.indexOf(userDelete), 1);
 
-        return res.send("Usuário excluido com sucesso!")
+        return res.status(200)
     }
 
     users.splice(users.indexOf(user), 1);
 
 
-    return res.send("Usuário excluido com sucesso!")
+    return res.status(200)
 
 });
 
