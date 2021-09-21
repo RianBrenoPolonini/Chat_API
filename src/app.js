@@ -74,13 +74,9 @@ app.post('/user/create', (req, res) => {
 app.post('/user/login', (req, res) => {
     const { email, password, nick } = req.body;
 
-    if(email){
-        const user = users.find((user) => user.email === email);
-    }
 
-    if(nick){
-        const user = users.find((user) => user.nick === nick);
-    }
+    const user = users.find((user) => user.email === email);
+  
     
     if (!user) {
         return res.status(400).json({ error: "Usuário não existe"});
