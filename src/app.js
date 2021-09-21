@@ -49,7 +49,7 @@ function checkIfUserAuth(req, res, next) {
 app.post('/user/create', (req, res) => {
     const { email, password, nick } = req.body;
 
-    if (!email && !password && !nick){
+    if (!email || !password || !nick){
         return res.status(400).json({ error: "Preencha todas as informações"});
     }
 
