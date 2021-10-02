@@ -148,9 +148,9 @@ app.get('/user/account', checkIfUserAuth, (req, res) => {
 });
 
 app.get('/user/users', (req, res) => {
-    const ipCliente = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // const ipCliente = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-    return res.json({users, ipCliente});
+    return res.json(users);
 });
 
 app.listen(port, (erro) => {
