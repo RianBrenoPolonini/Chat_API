@@ -9,12 +9,14 @@ app.use(express.json());
 const port = process.env.PORT || 3333;
 
 const users = [{
+    id: uuidv4(),
     nick: "Admin",
     email: "admin@admin.com",
     password: crypt.hashSync("123456", 10),
-    isAdmin: true,
-    id: uuidv4()
+    isAdmin: true
 }];
+
+const mensagens = [];
 
 const key = 'QNqnF.s78wL*v.2A6!.ifsoGQwoWtCd-zkd_nuDBnKAkc9JdikAAx*6PyaH!NUPaY9cwRF@@HEEa8!x4btU2QuiJrV.F_watN73@KM3_3JwpeyUnvN*gQRRExJwh7jTLcrtCTtL3.UJiGiGd8QaqfCaCD8Un9kq9Nt!_C.XXpUBtnBYeZYyqriX8JvjvMp3rJjUBPmqi8wy3bfVwVz37jd_v7BRAzDijCeh93RJDTUb-axfazY_zQPGUE6f3uiY_uR-qb2qK!WDMstHkph76hTxvcDmZ8p8zNtkewia7oxdmop7H4G@92YkmZgQXVnfC8rcWyn32GWB9!dDh@R2.pnDxc-gUx9ydXjnpo6BbNjp7@njNNmsyGbb_f_6CEu*tpm2WQM!r@Kv2*6bsrh62EiTUA6iM-evMXeqU6P8LN@niJrKAWadDb!F-hpTUv73gMq33_GmKbUbwat92JKptTHpKmsTy7JZ2orXExVZ_PE-nhUeHRnULjdUjHzNgfj!CDZbu_3QUZNu-2mnApPEUCnhH!A@_R8.FXbF4e4WeXdBZLc6nWjc6u8Y4pMDfJsuJmQseWNT!_38V8CVZPZ3dL.i_u8eZwmEZEDEH@jsoLYDBaWABBvu_mmFeJ*D92rKMU!8Vq_KnDBkEmHiCx3*wtkNqdnP2RVRLv3kJNGstcMakUJYqaZC4Nb.2YJYTvtv4JkmXHAH4K2*pbaBbHETDGqYr-pgvsEDHDtNZJ!MWjiT3dp*hyCU_dtU9DKemW@gEDUVTzchujVi7mtiZ8kde_EK4Q4ef4xLJPabPwFJeQfb-6N6eVwX2h*nZqQ.!7-EWyJ!-rkLb_g@w7BDgf-o9t@QxWxG3CDjaq-@Z9pf3ZT!TemTcTCE3-!c2CnPeFte3a4JMsu.@ZvhEYZDj2Y68VUW.p-DksNJx3nKgi26doRnnGG4mx!Jcfiy6b9A-*6Dt*kt7V2qXcA2YhixCX@a@zDYLFpcv-Pes@w9umPTT';
 
@@ -64,11 +66,11 @@ app.post('/user/create', (req, res) => {
     const hash = crypt.hashSync(password, 10);
 
     users.push({
+        id: uuidv4(),
         nick,
         email,
         password: hash,
-        isAdmin: false,
-        id: uuidv4()
+        isAdmin: false
     });
 
     return res.status(201).json({ mensagem: "Usuário cadastrato com sucesso"});
@@ -152,6 +154,56 @@ app.get('/user/users', (req, res) => {
 
     return res.json(users);
 });
+
+// Mensagens
+
+app.get('/mensagens', checkIfUserAuth, (req, res) => {
+    const { user } = req;
+    return res.json(mensagens);
+});
+
+app.post('/mensagens', checkIfUserAuth, (req, res) => {
+    const { user } = req;
+    const { mensagem } = req.body;
+
+    mensagens.push({
+        id: uuidv4(),
+        mensagem,
+        data: new Date(),
+        user_id: user.id
+    });
+
+    return res.json(mensagens);
+});
+
+app.delete('/mensagens', checkIfUserAuth, (req, res) => {
+    const { user } = req;
+    const { id } = req.body;
+
+    const mensagemDelete = mensagens.find((mensagemDelete) => mensagemDelete.id === id);
+
+    if(!mensagemDelete){
+        return res.status(401).json({ error: "ID da mensagem não existe!"});
+    }
+
+    if (user.isAdmin) {
+        mensagens.splice(mensagens.indexOf(mensagemDelete), 1);
+        
+        return res.status(200)
+    }
+
+    if(user.id !== mensagemDelete.user_id){
+        return res.status(401).json({ error: "Você não pode apagar a mensagem de outro usuário!"});
+    }
+
+    mensagens.splice(mensagens.indexOf(mensagemDelete), 1);
+
+    return res.status(200)
+
+});
+
+
+
 
 app.listen(port, (erro) => {
     if (erro) {
